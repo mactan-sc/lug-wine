@@ -49,6 +49,8 @@ jobs:
           touch tarplz
           yes|./non-makepkg-build.sh
 
+          ls
+          ls non-makepkg-builds
           dir=$(find ./non-makepkg-builds -maxdepth 1 -type d -name 'wine-*' -printf '%f\n')
           lug_dirname="lug-$(echo "$dir" | cut -d. -f1-2)"
           mv "./non-makepkg-builds/$dir" "./non-makepkg-builds/$lug_dirname"
