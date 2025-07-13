@@ -49,7 +49,9 @@ jobs:
           yes|./non-makepkg-build.sh
       - name: Create Archive
         id: archive
+        shell: bash {0}
         run: |
+          cd wine-tkg-git/wine-tkg-git
           ls non-makepkg-builds
           dir=$(find ./non-makepkg-builds -maxdepth 1 -type f -name 'wine-*.tar' -printf '%f\n')
           lug_archive="lug-$(echo "$dir" | cut -d. -f1-2).tar"
