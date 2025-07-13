@@ -63,4 +63,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name:  ${{ steps.archive.outputs.BUILD_ARCHIVE }}
-          path: wine-tkg-git/non-makepkg-builds
+          path: wine-tkg-git/wine-tkg-git/non-makepkg-builds
