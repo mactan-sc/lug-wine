@@ -8,16 +8,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    #container:
-    #  image: "ubuntu:25.04"
+    container:
+      image: "ubuntu:22.04"
     env:
       DEBIAN_FRONTEND: noninteractive
       TZ: UTC
     steps:
-      # - name: Install Git
-      #   run: |
-      #     apt-get update
-      #     apt-get install -y git
+      - name: Install Git
+        run: |
+          apt-get update
+          apt-get install -y git
       - uses: actions/checkout@v4
         with:
           submodules: true
@@ -25,9 +25,9 @@ jobs:
         id: build
         shell: bash {0}
         run: |
-          sudo dpkg --add-architecture i386 && sudo apt-get update
-          sudo apt-get install -y aptitude
-          sudo aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
+          dpkg --add-architecture i386 && apt-get update
+          apt-get install -y aptitude
+          aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
           cd wine-tkg-git/wine-tkg-git
 
           patches=("silence-sc-unsupported-os")
@@ -46,17 +46,18 @@ jobs:
 
           sed -i 's/_NOLIB32="false"/_NOLIB32="wow64"/' wine-tkg-profiles/advanced-customization.cfg
           echo '_ci_build="true"' >> customization.cfg
-          #touch tarplz
+          touch tarplz
           yes|./non-makepkg-build.sh
 
-          ls
           ls non-makepkg-builds
-          dir=$(find ./non-makepkg-builds -maxdepth 1 -type d -name 'wine-*' -printf '%f\n')
-          lug_dirname="lug-$(echo "$dir" | cut -d. -f1-2)"
-          mv "./non-makepkg-builds/$dir" "./non-makepkg-builds/$lug_dirname"
-          echo "BUILD_DIR=$lug_dirname" >> $GITHUB_OUTPUT
+          dir=$(find ./non-makepkg-builds -maxdepth 1 -type f -name 'wine-*.tar' -printf '%f\n')
+          lug_archive="lug-$(echo "$dir" | cut -d. -f1-2).tar"
+          mv "./non-makepkg-builds/$dir" "./non-makepkg-builds/$lug_archive"
+          gzip "./non-makepkg-builds/$lug_archive"
+          
+          echo "BUILD_ARCHIVE=$lug_dirname" >> $GITHUB_OUTPUT
       - name: Archive the artifacts
         uses: actions/upload-artifact@v4
         with:
-          name:  ${{ steps.build.outputs.BUILD_DIR }}
+          name:  ${{ steps.build.outputs.BUILD_ARCHIVE }}
           path: wine-tkg-git/non-makepkg-builds
