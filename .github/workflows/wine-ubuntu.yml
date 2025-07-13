@@ -77,9 +77,8 @@ jobs:
         id: find
         shell: bash {0}
         run: |
-          ls ./output
           file="$(find ./output -name '*.tar.gz' | head -n1)"
-          version="$(echo $file | | cut -d '-' -f6 | cut -d '.' -f 1,2)"
+          version="$(echo $file | cut -d '-' -f6 | cut -d '.' -f 1,2)"
           echo "ARCHIVE_PATH=$file" >> $GITHUB_OUTPUT
           echo "NEW_TAG=$version" >> $GITHUB_OUTPUT
       - name: Create GitHub Release
