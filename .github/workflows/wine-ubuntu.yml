@@ -57,8 +57,9 @@ jobs:
           lug_archive="lug-$(echo "$dir" | cut -d. -f1-2).tar"
           mv "./non-makepkg-builds/$dir" "./non-makepkg-builds/$lug_archive"
           gzip "./non-makepkg-builds/$lug_archive"
-          
-          echo "BUILD_ARCHIVE=$lug_dirname" >> $GITHUB_OUTPUT
+
+          echo "BUILD_ARCHIVE=$lug_dirname"
+          echo "BUILD_ARCHIVE=$lug_dirname" >> $GITHUB_ENV
       - name: Upload Archive
         uses: actions/upload-artifact@v4
         with:
