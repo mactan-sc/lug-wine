@@ -64,3 +64,29 @@ jobs:
         with:
           name:  ${{ steps.archive.outputs.BUILD_ARCHIVE }}
           path: wine-tkg-git/wine-tkg-git/non-makepkg-builds
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ./output
+
+      - name: Find archive
+        id: find
+        shell: bash
+        run: |
+          ls ./output
+          file=$(find ./output -name '*.tar.gz' | head -n1)
+          version="$(echo $file | | cut -d '-' -f6 | cut -d '.' -f 1,2)"
+          echo "ARCHIVE_PATH=$file" >> $GITHUB_OUTPUT
+          echo "NEW_TAG=$version" >> $GITHUB_OUTPUT
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.find.outputs.NEW_TAG }}
+          files: ${{ steps.find.outputs.ARCHIVE_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
