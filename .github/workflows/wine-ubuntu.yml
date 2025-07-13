@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: "ubuntu:22.04"
+      image: "ubuntu:25.04"
     env:
       DEBIAN_FRONTEND: noninteractive
       TZ: UTC
@@ -22,7 +22,6 @@ jobs:
         with:
           submodules: true
       - name: Compilation
-        id: build
         shell: bash {0}
         run: |
           dpkg --add-architecture i386 && apt-get update
@@ -48,7 +47,9 @@ jobs:
           echo '_ci_build="true"' >> customization.cfg
           touch tarplz
           yes|./non-makepkg-build.sh
-
+      - name: Create Archive
+        id: archive
+        run: |
           ls non-makepkg-builds
           dir=$(find ./non-makepkg-builds -maxdepth 1 -type f -name 'wine-*.tar' -printf '%f\n')
           lug_archive="lug-$(echo "$dir" | cut -d. -f1-2).tar"
@@ -56,8 +57,8 @@ jobs:
           gzip "./non-makepkg-builds/$lug_archive"
           
           echo "BUILD_ARCHIVE=$lug_dirname" >> $GITHUB_OUTPUT
-      - name: Archive the artifacts
+      - name: Upload Archive
         uses: actions/upload-artifact@v4
         with:
-          name:  ${{ steps.build.outputs.BUILD_ARCHIVE }}
+          name:  ${{ steps.archive.outputs.BUILD_ARCHIVE }}
           path: wine-tkg-git/non-makepkg-builds
