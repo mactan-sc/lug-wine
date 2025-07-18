@@ -62,7 +62,7 @@ jobs:
           mkdir -p /tmp/lug-wine-tkg
           mv "./pkg/$lug_wine_tkg/usr" "/tmp/lug-wine-tkg/$lug_dir"
 
-          tar --remove-files -I zstd -C "/tmp/lug-wine-tkg/$lug_dir" -cf "/tmp/lug-wine-tkg/$lug_dir.tar.zst" .
+          tar --remove-files -czf -C "/tmp/lug-wine-tkg/$lug_dir" -cf "/tmp/lug-wine-tkg/$lug_dir.tar.gz" .
 
           echo "BUILD_ARCHIVE=$lug_archive" >> $GITHUB_OUTPUT
       - name: Upload Archive
@@ -83,7 +83,7 @@ jobs:
         id: find
         shell: bash {0}
         run: |
-          file="$(find . -name '*.tar.zst' | head -n1)"
+          file="$(find . -name '*.tar.gz' | head -n1)"
           version="$(echo $file | grep -oE '[0-9]+\.[0-9]+')"
           echo "ARCHIVE_PATH=$file" >> $GITHUB_OUTPUT
           echo "NEW_TAG=$version" >> $GITHUB_OUTPUT
