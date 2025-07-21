@@ -17,13 +17,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Allow safe Git directory
+        run: git config --global --add safe.directory /__w/lug-wine/lug-wine
       - name: Get tags
         run: git fetch --tags origin
       - name: Set variables
         id: variables
         run: |
-          LAST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
-          echo "LAST_TAG=LAST_TAG" >> $GITHUB_OUTPUT
+          tag_name=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "LAST_TAG=$tag_name" >> $GITHUB_OUTPUT
       - name: Compile
         env:
           XDG_CACHE_HOME: /tmp/.cache
