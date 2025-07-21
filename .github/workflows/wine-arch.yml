@@ -55,11 +55,19 @@ jobs:
         id: find
         shell: bash {0}
         run: |
-          echo "LAST_TAG: $LAST_TAG"
           file="$(find . -name '*.tar.gz' | head -n1)"
           version="$(echo $file | grep -oE '[0-9]+\.[0-9]+')"
+          prev_version="${LAST_TAG%%-*}"
+
+          if [ "$version" != "$prev_version" ] &&
+          [ "$version" = "$(printf "%s\n%s" "$prev_version" "$version" | sort -V | head -n1)" ]; then
+            new_version="$prev_version-$(( ${LAST_TAG#*-} + 1 ))"
+          else
+            new_version="$version-1"
+          fi
+
           echo "ARCHIVE_PATH=$file" >> $GITHUB_OUTPUT
-          echo "NEW_TAG=$version" >> $GITHUB_OUTPUT
+          echo "NEW_TAG=$new_version" >> $GITHUB_OUTPUT
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
