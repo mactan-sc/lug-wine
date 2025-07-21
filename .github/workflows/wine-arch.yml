@@ -44,6 +44,8 @@ jobs:
         id: find
         shell: bash {0}
         run: |
+          LAST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "LAST_TAG: $LAST_TAG"
           file="$(find . -name '*.tar.gz' | head -n1)"
           version="$(echo $file | grep -oE '[0-9]+\.[0-9]+')"
           echo "ARCHIVE_PATH=$file" >> $GITHUB_OUTPUT
