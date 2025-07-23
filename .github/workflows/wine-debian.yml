@@ -25,8 +25,14 @@ jobs:
         shell: bash {0}
         run: |
           dpkg --add-architecture i386 && apt-get update
-          apt-get install -y aptitude
-          #aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
+          apt-get install -y curl jq
+
+          git config --add safe.directory /__w/lug-wine/lug-wine
+          git fetch --tags origin
+          export LAST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+
+          curl -s "https://api.github.com/repos/mactan-sc/lug-wine/releases/tags/$LAST_TAG" \
+          | jq -r '.assets[].name | sub("-[0-9]+\\.tar\\.gz$"; "")' > assets.txt
 
           ./build-lug-wine.sh fsync
       - name: Upload Archive
