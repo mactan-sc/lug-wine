@@ -6,8 +6,28 @@ on:
   workflow_dispatch:
 
 jobs:
+  get-release-info:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      last_tag: ${{ steps.get-tag.outputs.tag }}
+      asset_names: ${{ steps.get-assets.outputs.names }}
+    steps:
+      - name: Get last tag
+        id: get-tag
+        run: |
+          TAG=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --json tagName --jq '.[0].tagName')
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Get asset names
+        id: get-assets
+        run: |
+          ASSETS=$(gh release view --repo "$GITHUB_REPOSITORY" "${{ steps.get-tag.outputs.tag }}" --json assets -q '.assets[].name | sub("-[0-9]+\\.tar\\.gz$"; "")')
+          echo "names=$(printf "%s;" $ASSETS | sed 's/;$//')" >> "$GITHUB_OUTPUT"
   build:
     runs-on: ubuntu-latest
+    needs: get-release-info
     container: archlinux:latest
 
     steps:
@@ -24,6 +44,12 @@ jobs:
           pacman -Syu --noconfirm base-devel sudo git freetype2 graphite harfbuzz libpng fontconfig jack2
           useradd user -G wheel && echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           chown user -R .
+
+          echo '${{ needs.get-release-info.outputs.asset_names }}' > assets.txt
+          export LAST_TAG="${{ needs.get-release-info.outputs.last_tag }}"
+
+          cat assets.txt
+          echo $LAST_TAG
 
           ./build-lug-wine.sh staging-ntsync
       - name: Upload Archive
@@ -45,7 +71,7 @@ jobs:
         shell: bash {0}
         run: |
           file="$(find . -name '*.tar.gz' | head -n1)"
-          version="$(echo $file | grep -oE '[0-9]+\.[0-9]+')"
+          version="$(echo "$file" | grep -oE '[0-9]+\.[0-9]+(-[0-9]+)?')"
           echo "ARCHIVE_PATH=$file" >> $GITHUB_OUTPUT
           echo "NEW_TAG=$version" >> $GITHUB_OUTPUT
       - name: Create GitHub Release

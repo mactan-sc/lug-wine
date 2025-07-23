@@ -13,15 +13,37 @@ cleanup() {
 }
 trap cleanup EXIT
 
+determine_revision() {
+  lug_name="lug-$(echo "$built_dir" | cut -d. -f1-2)"
+  version="$(echo $lug_name | grep -oE '[0-9]+\.[0-9]+')"
+  prev_version="${LAST_TAG%%-*}"
+
+  if [ "$version" != "$prev_version" ] &&
+  [ "$version" = "$(printf "%s\n%s" "$prev_version" "$version" | sort -V | tail -n1)" ]; then
+    new_version="$version-1"
+  else
+
+    if grep -q "$lug_name" ../assets.txt; then
+      new_version="$prev_version-$(( ${LAST_TAG#*-} + 1 ))"
+    else
+      new_version="$LAST_TAG"
+    fi
+  fi
+
+  export lug_name=$(echo "$lug_name" | sed "s/$version/$new_version/")
+}
+
 package_artifact() {
   local workdir lug_name archive_path
   local built_dir
-  built_dir="$(find ./non-makepkg-builds -maxdepth 1 -type d -name 'wine-*' -printf '%f\n' | head -n1)"
+  export built_dir="$(find ./non-makepkg-builds -maxdepth 1 -type d -name 'wine-*' -printf '%f\n' | head -n1)"
   if [[ -z "$built_dir" ]]; then
     echo "No build directory found in non-makepkg-builds/"
     exit 1
   fi
-  lug_name="lug-$(echo "$built_dir" | cut -d. -f1-2)"
+
+  determine_revision
+
   archive_path="/tmp/lug-wine-tkg/${lug_name}.tar.gz"
   mkdir -p "$(dirname "$archive_path")"
   mv "./non-makepkg-builds/$built_dir" "./non-makepkg-builds/$lug_name"
