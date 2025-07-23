@@ -23,7 +23,7 @@ determine_revision() {
     new_version="$version-1"
   else
 
-    if grep -Fxq "$lug_name" ../assets.txt; then
+    if grep -q "$lug_name" ../assets.txt; then
       new_version="$prev_version-$(( ${LAST_TAG#*-} + 1 ))"
     else
       new_version="$LAST_TAG"

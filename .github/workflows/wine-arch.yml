@@ -24,7 +24,7 @@ jobs:
         id: get-assets
         run: |
           ASSETS=$(gh release view --repo "$GITHUB_REPOSITORY" "${{ steps.get-tag.outputs.tag }}" --json assets -q '.assets[].name | sub("-[0-9]+\\.tar\\.gz$"; "")')
-          echo "names=$ASSETS" >> "$GITHUB_OUTPUT"
+          echo "names=$(printf "%s;" $ASSETS | sed 's/;$//')" >> "$GITHUB_OUTPUT"
   build:
     runs-on: ubuntu-latest
     needs: get-release-info
