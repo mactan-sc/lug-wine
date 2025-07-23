@@ -8,6 +8,8 @@ on:
 jobs:
   get-release-info:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
       last_tag: ${{ steps.get-tag.outputs.tag }}
       asset_names: ${{ steps.get-assets.outputs.names }}
