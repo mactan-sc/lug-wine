@@ -6,8 +6,26 @@ on:
   workflow_dispatch:
 
 jobs:
+  get-release-info:
+    runs-on: ubuntu-latest
+    outputs:
+      last_tag: ${{ steps.get-tag.outputs.tag }}
+      asset_names: ${{ steps.get-assets.outputs.names }}
+    steps:
+      - name: Get last tag
+        id: get-tag
+        run: |
+          TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Get asset names
+        id: get-assets
+        run: |
+          ASSETS=$(gh release view "${{ steps.get-tag.outputs.tag }}" --json assets -q '.assets[].name | sub("-[0-9]+\\.tar\\.gz$"; "")')
+          echo "names=$ASSETS" >> "$GITHUB_OUTPUT"
   build:
     runs-on: ubuntu-latest
+    needs: get-release-info
     container: archlinux:latest
 
     steps:
@@ -16,19 +34,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Get last tag
-        id: get-tag
-        run: |
-          LAST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
-          echo "LAST_TAG=$LAST_TAG" >> "$GITHUB_ENV"
-          echo "tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Get filenames in last release
-        id: get-files
-        run: |
-          gh release view "$LAST_TAG" --json assets -q '.assets[].name | sub("-[0-9]+\\.tar\\.gz$"; "")' > assets.txt
-          echo "Assets:"
-          cat assets.txt
       - name: Compile
         env:
           XDG_CACHE_HOME: /tmp/.cache
@@ -37,6 +42,12 @@ jobs:
           pacman -Syu --noconfirm base-devel sudo git freetype2 graphite harfbuzz libpng fontconfig jack2 curl jq
           useradd user -G wheel && echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           chown user -R .
+
+          echo '${{ needs.get-release-info.outputs.asset_names }}' > assets.txt
+          export LAST_TAG="${{ needs.get-release-info.outputs.last_tag }}"
+
+          cat assets.txt
+          echo $LAST_TAG
 
           ./build-lug-wine.sh ntsync
       - name: Upload Archive
