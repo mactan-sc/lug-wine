@@ -17,13 +17,13 @@ jobs:
       - name: Get last tag
         id: get-tag
         run: |
-          TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+          TAG=$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --json tagName --jq '.[0].tagName')
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Get asset names
         id: get-assets
         run: |
-          ASSETS=$(gh release view "${{ steps.get-tag.outputs.tag }}" --json assets -q '.assets[].name | sub("-[0-9]+\\.tar\\.gz$"; "")')
+          ASSETS=$(gh release view --repo "$GITHUB_REPOSITORY" "${{ steps.get-tag.outputs.tag }}" --json assets -q '.assets[].name | sub("-[0-9]+\\.tar\\.gz$"; "")')
           echo "names=$ASSETS" >> "$GITHUB_OUTPUT"
   build:
     runs-on: ubuntu-latest
