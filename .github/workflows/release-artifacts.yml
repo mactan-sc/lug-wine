@@ -8,6 +8,7 @@ jobs:
     uses: mactan-sc/lug-wine/.github/workflows/build-artifacts.yml@main
   release:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Download Debian Artifact
         uses: actions/download-artifact@v4
