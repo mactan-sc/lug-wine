@@ -3,9 +3,19 @@ name: Build Artifacts
 on:
   schedule:
     - cron: "0 10 * * 5" # friday at 10:00 UTC
-  workflow_dispatch:
   workflow_call:
-
+  workflow_dispatch:
+    inputs:
+      wine_version:
+        description: "Select the wine version to pin the build to"
+        required: true
+        default: ''
+        type: string
+      lug_rev:
+        description: "Select the lug revision"
+        required: true
+        default: '1'
+        type: string
 jobs:
   build-debian:
     runs-on: ubuntu-latest
@@ -25,11 +35,9 @@ jobs:
       - name: Compilation
         shell: bash {0}
         run: |
-          dpkg --add-architecture i386 && apt-get update
           apt-get install -y aptitude
-          #aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
 
-          ./build-lug-wine.sh fsync
+          ./build-lug-wine.sh fsync inputs.wine_version
       - name: Upload Archive
         uses: actions/upload-artifact@v4
         with:
@@ -54,11 +62,9 @@ jobs:
       - name: Compilation
         shell: bash {0}
         run: |
-          dpkg --add-architecture i386 && apt-get update
           apt-get install -y aptitude
-          #aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
 
-          ./build-lug-wine.sh staging-fsync
+          ./build-lug-wine.sh staging-fsync inputs.wine_version
       - name: Upload Archive
         uses: actions/upload-artifact@v4
         with:
@@ -78,12 +84,11 @@ jobs:
         env:
           XDG_CACHE_HOME: /tmp/.cache
         run: |
-          echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
           pacman -Syu --noconfirm base-devel sudo git freetype2 graphite harfbuzz libpng fontconfig jack2
           useradd user -G wheel && echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           chown user -R .
 
-          ./build-lug-wine.sh ntsync
+          ./build-lug-wine.sh ntsync inputs.wine_version
       - name: Upload Archive
         uses: actions/upload-artifact@v4
         with:
@@ -103,12 +108,11 @@ jobs:
         env:
           XDG_CACHE_HOME: /tmp/.cache
         run: |
-          echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
           pacman -Syu --noconfirm base-devel sudo git freetype2 graphite harfbuzz libpng fontconfig jack2
           useradd user -G wheel && echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           chown user -R .
 
-          ./build-lug-wine.sh staging-ntsync
+          ./build-lug-wine.sh staging-ntsync inputs.wine_version
       - name: Upload Archive
         uses: actions/upload-artifact@v4
         with:

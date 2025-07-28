@@ -1,0 +1,9 @@
+name: CI Testing
+on: [push, pull_request]
+
+jobs:
+  ci_run:
+    uses: mactan-sc/lug-wine/.github/workflows/build-artifacts.yml@main
+    with:
+      wine_version: '10.12'
+      lug_rev: '1'
