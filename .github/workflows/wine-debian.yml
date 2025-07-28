@@ -24,9 +24,7 @@ jobs:
       - name: Compilation
         shell: bash {0}
         run: |
-          dpkg --add-architecture i386 && apt-get update
           apt-get install -y aptitude
-          #aptitude remove -y '?narrow(?installed,?version(deb.sury.org))'
 
           ./build-lug-wine.sh fsync
       - name: Upload Archive
