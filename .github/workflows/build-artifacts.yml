@@ -5,7 +5,7 @@ on:
     inputs:
       wine_version:
         description: "Select the wine version to pin the build to"
-        required: true
+        required: false
         default: ''
         type: string
       lug_rev:
