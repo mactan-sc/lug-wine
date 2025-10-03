@@ -25,7 +25,7 @@ jobs:
         include:
           - os: debian
             image: debian:11
-            preset: ntsync
+            preset: fsync
     container:
       image: ${{ matrix.image }}
     env:
