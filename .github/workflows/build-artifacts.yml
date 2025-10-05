@@ -1,5 +1,4 @@
 name: Build Artifacts
-
 on:
   workflow_dispatch:
   workflow_call:
@@ -25,13 +24,7 @@ jobs:
         include:
           - os: debian
             image: debian:11
-            preset: fsync
-          - os: debian
-            image: debian:11
             preset: staging-fsync
-          - os: arch
-            image: archlinux:latest
-            preset: ntsync
           - os: arch
             image: archlinux:latest
             preset: staging-ntsync
