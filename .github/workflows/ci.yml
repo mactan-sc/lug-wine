@@ -1,16 +1,25 @@
 name: CI Testing
 on:
-  schedule:
-    - cron: "0 10 * * 5" # friday at 10:00 UTC
   push:
       paths-ignore:
         - 'README.md'
         - '.github/workflows/**'
   pull_request:
   workflow_dispatch:
+    inputs:
+      wine_version:
+        description: "Select the wine version to pin the build to"
+        required: true
+        default: ''
+        type: string
+      lug_rev:
+        description: "Select the lug revision"
+        required: true
+        default: '1'
+        type: string
 jobs:
   ci_run:
     uses: starcitizen-lug/lug-wine/.github/workflows/build-artifacts.yml@main
     with:
-      wine_version: ''
-      lug_rev: '1'
+      wine_version: ${{ github.event.inputs.wine_version }}
+      lug_rev: ${{ github.event.inputs.lug_rev }}
