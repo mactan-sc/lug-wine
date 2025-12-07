@@ -23,7 +23,8 @@ jobs:
           wine_version="${tag%-*}"
           lug_rev="${tag##*-}"
           echo "Parsed tag: $tag -> wine_version=$wine_version lug_rev=$lug_rev"
-          echo "TAG=$tag" >> $GITHUB_OUTPUT
+
+          echo "lug_release_tag=$tag" >> $GITHUB_OUTPUT
           echo "wine_version=$wine_version" >> $GITHUB_OUTPUT
           echo "lug_rev=$lug_rev" >> $GITHUB_OUTPUT
   build:
@@ -45,7 +46,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           make_latest: false
-          tag_name: ${{ needs.parse.outputs.TAG }}
+          tag_name: ${{ needs.parse.outputs.lug_release_tag }}
           files: |
             ./out/lug-wine*.tar.gz
         env:
