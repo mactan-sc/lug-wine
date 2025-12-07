@@ -12,6 +12,7 @@ jobs:
     name: Parse tag
     runs-on: ubuntu-latest
     outputs:
+      lug_release_tag: ${{ steps.parse.outputs.lug_release_tag }}
       wine_version: ${{ steps.parse.outputs.wine_version }}
       lug_rev: ${{ steps.parse.outputs.lug_rev }}
     steps:
