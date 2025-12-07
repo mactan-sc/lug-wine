@@ -54,6 +54,6 @@ jobs:
           make_latest: false
           tag_name: ${{ steps.find.outputs.NEW_TAG }}
           files: |
-            ./out/*.tar.gz
+            ./out/lug-wine*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
