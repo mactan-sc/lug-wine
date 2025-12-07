@@ -20,7 +20,7 @@ jobs:
         shell: bash {0}
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          wine_version="${tag%%-*}"
+          wine_version="${tag%-*}"
           lug_rev="${tag##*-}"
           echo "Parsed tag: $tag -> wine_version=$wine_version lug_rev=$lug_rev"
           echo "wine_version=$wine_version" >> $GITHUB_OUTPUT
