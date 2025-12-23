@@ -86,6 +86,7 @@ patches=("10.2+_eac_fix"
          "eac_60101_timeout"
          "unopenable-device-is-bad"
          "append_cmd"
+         "default-to-wayland"
 )
 
 mkdir -p ./wine-tkg-userpatches
