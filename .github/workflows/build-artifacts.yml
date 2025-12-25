@@ -40,6 +40,9 @@ jobs:
           - os: ubuntu
             image: ubuntu:22.04
             preset: staging-default
+          - os: ubuntu
+            image: ubuntu:22.04
+            preset: staging-default+wayland
     container:
       image: ${{ matrix.image }}
     env:
@@ -66,7 +69,7 @@ jobs:
         shell: bash {0}
         run: |
           echo "$WINE_VERSION" "$LUG_REV"
-          ./build-lug-wine.sh "${{ matrix.preset }}" "$WINE_VERSION" "$LUG_REV"
+          ./build-lug-wine.sh --preset "${{ matrix.preset }}" --version "$WINE_VERSION" --revision "$LUG_REV"
       - name: Upload Archive
         uses: actions/upload-artifact@v4
         with:
