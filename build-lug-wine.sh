@@ -90,7 +90,7 @@ prepare_preset() {
 }
 
 build_lug_wine() {
-  #yes|./non-makepkg-build.sh --config "$TMP_BUILD_DIR/$config" "$@"
+  yes|./non-makepkg-build.sh --config "$TMP_BUILD_DIR/$config" "$@"
   echo "Build completed successfully."
 }
 
