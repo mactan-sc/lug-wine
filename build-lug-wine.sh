@@ -37,15 +37,44 @@ cleanup() {
 }
 trap cleanup EXIT
 
-build_lug_wine() {
+parse_adhoc() {
+  IFS=',' read -r -a adhoc <<< "$1"
+  patches+=("${adhoc[@]}")
+}
+
+require_argument() {
+    if [ -z "$1" ]; then
+        echo "A value is required for $1"
+        usage
+        exit $invalid_args
+    fi
+}
+
+# prepare preset
+prepare_preset() {
+  case "$preset" in
+    default)
+      export config="lug-wine-tkg-default.cfg"
+      ;;
+    staging-default)
+      export config="lug-wine-tkg-staging-default.cfg"
+      ;;
+    staging-wayland)
+      export config="lug-wine-tkg-staging-wayland.cfg"
+      parse_adhoc "default-to-wayland"
+      ;;
+    *)
+      echo "Usage: $0 {default|staging-default|staging-wayland} [build args...]"
+      exit $invalid_args
+      ;;
+  esac
 
   cp -a "$WINE_TKG_SRC/wine-tkg-git" "$TMP_BUILD_DIR/"
   echo "Created temporary build directory: $TMP_BUILD_DIR"
 
-  cp "$config" "$TMP_BUILD_DIR"
+  cp "./profiles/$config" "$TMP_BUILD_DIR"
 
   cd "$TMP_BUILD_DIR"
-
 
   mkdir -p ./wine-tkg-userpatches
   for file in "${patches[@]}"; do
@@ -54,21 +83,14 @@ build_lug_wine() {
 
   echo "Copied LUG patches to ./wine-tkg-userpatches/"
 
-  # profile settings
-  case "$preset" in
-    staging*)
-      if [ -n "$wine_version" ]; then
-        sed -i "s/staging_version=\"\"/staging_version=\"v$wine_version\"/" "$TMP_BUILD_DIR/$config"
-      fi
-    ;;
-    *)
-      if [ -n "$wine_version" ]; then
-        sed -i "s/plain_version=\"\"/plain_version=\"wine-$wine_version\"/" "$TMP_BUILD_DIR/$config"
-      fi
-    ;;
-  esac
+  if [ -n "$wine_version" ]; then
+    sed -i "s/staging_version=\"\"/staging_version=\"v$wine_version\"/" "$TMP_BUILD_DIR/$config"
+    sed -i "s/plain_version=\"\"/plain_version=\"wine-$wine_version\"/" "$TMP_BUILD_DIR/$config"
+  fi
+}
 
-  yes|./non-makepkg-build.sh --config "$TMP_BUILD_DIR/$config" "$@"
+build_lug_wine() {
+  #yes|./non-makepkg-build.sh --config "$TMP_BUILD_DIR/$config" "$@"
   echo "Build completed successfully."
 }
 
@@ -91,40 +113,6 @@ package_artifact() {
   echo "Build artifact collected in $SCRIPT_DIR/output/${lug_name}.tar.gz"
 }
 
-parse_adhoc() {
-  IFS=',' read -r -a adhoc <<< "$1"
-  patches+=("${adhoc[@]}")
-}
-
-# Parse preset argument
-parse_preset() {
-  export preset="$1"
-  case "$1" in
-    "default")
-      export config="lug-wine-tkg-default.cfg"
-      ;;
-    "staging-default")
-      export config="lug-wine-tkg-staging-default.cfg"
-      ;;
-    "staging-default+wayland")
-      export config="lug-wine-tkg-staging-default.cfg"
-      parse_adhoc "default-to-wayland"
-      ;;
-    *)
-      echo "Usage: $0 {default|staging-default} [build args...]"
-      exit $invalid_args
-      ;;
-  esac
-}
-
-require_argument() {
-    if [ -z "$1" ]; then
-        echo "A value is required for $1"
-        usage
-        exit $invalid_args
-    fi
-}
-
 usage() {
   printf "Linux Users Group Wine Build Script\n
 Usage: ./build-lug-wine <options>
@@ -138,8 +126,6 @@ Usage: ./build-lug-wine <options>
 "
 }
 
-parse_preset $preset
-
 # MARK: Cmdline arguments
 # If invoked with command line arguments, process them and exit
 if [ "$#" -gt 0 ]; then
@@ -152,7 +138,7 @@ if [ "$#" -gt 0 ]; then
                 exit 0
                 ;;
             --preset | -p )
-                parse_preset "$2"
+                preset="$2"
                 shift
                 ;;
             --version | -v )
@@ -160,7 +146,7 @@ if [ "$#" -gt 0 ]; then
                 shift
                 ;;
             --revision | -r )
-                lug_rev="-${2:-1}"
+                lug_rev="-$2"
                 shift
                 ;;
             --adhoc | -a )
@@ -176,7 +162,8 @@ if [ "$#" -gt 0 ]; then
         # Shift forward to the next argument and loop again
         shift
     done
-
-    build_lug_wine
-    package_artifact
 fi
+
+prepare_preset
+build_lug_wine
+package_artifact
