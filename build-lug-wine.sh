@@ -68,7 +68,7 @@ build_lug_wine() {
     ;;
   esac
 
-  #yes|./non-makepkg-build.sh --config "$TMP_BUILD_DIR/$config" "$@"
+  yes|./non-makepkg-build.sh --config "$TMP_BUILD_DIR/$config" "$@"
   echo "Build completed successfully."
 }
 
