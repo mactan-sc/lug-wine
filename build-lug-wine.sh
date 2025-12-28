@@ -42,14 +42,6 @@ parse_adhoc() {
   patches+=("${adhoc[@]}")
 }
 
-require_argument() {
-    if [ -z "$1" ]; then
-        echo "A value is required for $1"
-        usage
-        exit $invalid_args
-    fi
-}
-
 # prepare preset
 prepare_preset() {
   case "$preset" in
@@ -72,7 +64,7 @@ prepare_preset() {
   cp -a "$WINE_TKG_SRC/wine-tkg-git" "$TMP_BUILD_DIR/"
   echo "Created temporary build directory: $TMP_BUILD_DIR"
 
-  cp "./profiles/$config" "$TMP_BUILD_DIR"
+  cp "./config/$config" "$TMP_BUILD_DIR"
 
   cd "$TMP_BUILD_DIR"
 
@@ -131,7 +123,6 @@ Usage: ./build-lug-wine <options>
 if [ "$#" -gt 0 ]; then
     while [ "$#" -gt 0 ]
     do
-        # Victor_Tramp expects the spanish inquisition.
         case "$1" in
             --help | -h )
                 usage
