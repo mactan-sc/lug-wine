@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 jobs:
   ci_run:
-    uses: starcitizen-lug/lug-wine/.github/workflows/build-artifacts.yml@main
+    uses: mactan-sc/lug-wine/.github/workflows/build-artifacts.yml@main
     with:
       wine_version: ''
       lug_rev: '1'
