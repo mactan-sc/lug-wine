@@ -98,7 +98,7 @@ package_artifact() {
     echo "No build directory found in non-makepkg-builds/"
     exit 1
   fi
-  lug_name="lug-$(echo "$built_dir" | cut -d. -f1-2)${lug_rev}"
+  lug_name="mactan-$(echo "$built_dir" | cut -d. -f1-2)${lug_rev}"
   archive_path="/tmp/lug-wine-tkg/${lug_name}.tar.gz"
   mkdir -p "$(dirname "$archive_path")"
   mv "./non-makepkg-builds/$built_dir" "./non-makepkg-builds/$lug_name"

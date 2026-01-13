@@ -30,7 +30,7 @@ jobs:
           echo "lug_rev=$lug_rev" >> $GITHUB_OUTPUT
   build:
     needs: parse
-    uses: starcitizen-lug/lug-wine/.github/workflows/build-artifacts.yml@main
+    uses: "./.github/workflows/build-artifacts.yml"
     with:
       wine_version: ${{ needs.parse.outputs.wine_version }}
       lug_rev: ${{ needs.parse.outputs.lug_rev }}
@@ -49,6 +49,6 @@ jobs:
           make_latest: false
           tag_name: ${{ needs.parse.outputs.lug_release_tag }}
           files: |
-            ./out/lug-wine*.tar.gz
+            ./out/mactan-wine*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
