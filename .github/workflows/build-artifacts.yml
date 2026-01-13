@@ -40,6 +40,9 @@ jobs:
           - os: ubuntu
             image: ubuntu:22.04
             preset: staging-default
+          - os: ubuntu
+            image: ubuntu:22.04
+            preset: staging-wayland
     container:
       image: ${{ matrix.image }}
     env:
