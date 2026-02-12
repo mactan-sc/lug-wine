@@ -72,12 +72,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: vkd3d-proton-build
-          path: ./
+          path: ./vkd3d-proton-build
       - name: Extract vkd3d-proton artifact
         shell: bash {0}
         run: |
-          if [ -f ./vkd3d-proton.tar.gz ]; then
-            tar -xzf ./vkd3d/vkd3d-proton.tar.gz --one-top-level
+          ls .
+          ls ./vkd3d-proton-build
+          if [ -f ./vkd3d-proton-build/vkd3d-proton.tar.gz ]; then
+            tar -xzf ./vkd3d-proton-build/vkd3d-proton.tar.gz --one-top-level
           else
             echo "No vkd3d artifact found; continuing without it"
           fi
